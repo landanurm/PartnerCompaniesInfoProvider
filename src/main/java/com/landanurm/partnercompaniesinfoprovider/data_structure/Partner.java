@@ -1,7 +1,7 @@
 package com.landanurm.partnercompaniesinfoprovider.data_structure;
 
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by Leonid on 02.12.13.
@@ -11,13 +11,13 @@ public class Partner implements Serializable {
     public final String title;
     public final String fullTitle;
     public final String saleType;
-    public final PartnerPoint[] partnerPoints;
+    public final List<PartnerPoint> partnerPoints;
 
     public Partner(int id,
                    String title,
                    String fullTitle,
                    String saleType,
-                   PartnerPoint[] partnerPoints) {
+                   List<PartnerPoint> partnerPoints) {
         this.id = id;
         this.title = title;
         this.fullTitle = fullTitle;
@@ -42,13 +42,12 @@ public class Partner implements Serializable {
                title.equals(other.title) &&
                fullTitle.equals(other.fullTitle) &&
                saleType.equals(other.saleType) &&
-               Arrays.equals(partnerPoints, other.partnerPoints);
+               partnerPoints.equals(other.partnerPoints);
     }
 
     @Override
     public int hashCode() {
-        return id + title.hashCode() + fullTitle.hashCode() + saleType.hashCode()
-                + ArrayHashCodeCalculator.hashCodeOf(partnerPoints);
+        return id + title.hashCode() + fullTitle.hashCode() + saleType.hashCode() + partnerPoints.hashCode();
     }
 
 

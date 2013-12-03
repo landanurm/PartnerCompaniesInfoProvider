@@ -1,15 +1,16 @@
 package com.landanurm.partnercompaniesinfoprovider.data_structure;
 
-import java.util.Arrays;
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * Created by Leonid on 02.12.13.
  */
-public class PartnerCategory {
+public class PartnerCategory implements Serializable {
     public final String title;
-    public final Partner[] partners;
+    public final List<Partner> partners;
 
-    public PartnerCategory(String title, Partner[] partners) {
+    public PartnerCategory(String title, List<Partner> partners) {
         this.title = title;
         this.partners = partners;
     }
@@ -27,11 +28,11 @@ public class PartnerCategory {
         }
 
         PartnerCategory other = (PartnerCategory) obj;
-        return title.equals(other.title) && Arrays.equals(partners, other.partners);
+        return title.equals(other.title) && partners.equals(other.partners);
     }
 
     @Override
     public int hashCode() {
-        return title.hashCode() + ArrayHashCodeCalculator.hashCodeOf(partners);
+        return title.hashCode() + partners.hashCode();
     }
 }
