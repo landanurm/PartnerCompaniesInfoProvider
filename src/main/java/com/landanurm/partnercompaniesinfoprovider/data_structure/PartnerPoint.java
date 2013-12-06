@@ -1,7 +1,6 @@
 package com.landanurm.partnercompaniesinfoprovider.data_structure;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 /**
  * Created by Leonid on 02.12.13.
@@ -10,14 +9,14 @@ public class PartnerPoint implements Serializable {
     public final String title;
     public final String address;
     public final String phone;
-    public final BigDecimal longitude;
-    public final BigDecimal latitude;
+    public final double longitude;
+    public final double latitude;
 
     public PartnerPoint(String title,
                         String address,
                         String phone,
-                        BigDecimal longitude,
-                        BigDecimal latitude) {
+                        double longitude,
+                        double latitude) {
         this.title = title;
         this.address = address;
         this.phone = phone;
@@ -41,13 +40,13 @@ public class PartnerPoint implements Serializable {
         return title.equals(other.title) &&
                address.equals(other.address) &&
                phone.equals(other.phone) &&
-               longitude.equals(other.longitude) &&
-               latitude.equals(other.latitude);
+               (longitude == other.longitude) &&
+               (latitude == other.latitude);
     }
 
     @Override
     public int hashCode() {
         return title.hashCode() + address.hashCode() + phone.hashCode()
-                + longitude.hashCode() + latitude.hashCode();
+                + ((Double) longitude).hashCode() + ((Double) latitude).hashCode();
     }
 }

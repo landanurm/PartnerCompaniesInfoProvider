@@ -10,7 +10,6 @@ import org.xmlpull.v1.XmlPullParser;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -193,8 +192,8 @@ public class PartnerCategoriesParser {
         String title = null;
         String address = null;
         String phone = null;
-        BigDecimal longitude = null;
-        BigDecimal latitude = null;
+        double longitude = 0.0;
+        double latitude = 0.0;
 
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
@@ -226,22 +225,22 @@ public class PartnerCategoriesParser {
         return parseTextValueByTag(parser, "phone");
     }
 
-    private BigDecimal parseLongitude(XmlPullParser parser) throws Exception {
+    private double parseLongitude(XmlPullParser parser) throws Exception {
         return parseBigDecimalValueByTag(parser, "longitude");
     }
 
-    private BigDecimal parseBigDecimalValueByTag(XmlPullParser parser, String tag) throws Exception {
+    private double parseBigDecimalValueByTag(XmlPullParser parser, String tag) throws Exception {
         parser.require(XmlPullParser.START_TAG, NAMESPACE, tag);
-        BigDecimal result = readBigDecimal(parser);
+        double result = readBigDecimal(parser);
         parser.require(XmlPullParser.END_TAG, NAMESPACE, tag);
         return result;
     }
 
-    private BigDecimal readBigDecimal(XmlPullParser parser) throws Exception {
-        return new BigDecimal(readText(parser));
+    private double readBigDecimal(XmlPullParser parser) throws Exception {
+        return Double.valueOf(readText(parser));
     }
 
-    private BigDecimal parseLatitude(XmlPullParser parser) throws Exception {
+    private double parseLatitude(XmlPullParser parser) throws Exception {
         return parseBigDecimalValueByTag(parser, "latitude");
     }
 

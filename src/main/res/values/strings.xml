@@ -6,5 +6,9 @@
     <string name="action_settings">Settings</string>
     <string name="partner_categories_list_activity_title">Partner Categories</string>
     <string name="title_activity_partner_list">PartnerListActivity</string>
+    <string name="title_activity_partner_info">PartnerInfoActivity</string>
+    <string name="full_title_label">Full Title</string>
+    <string name="sale_type_label">Sale Type</string>
+    <string name="phoneText">Тел.</string>
 
 </resources>
