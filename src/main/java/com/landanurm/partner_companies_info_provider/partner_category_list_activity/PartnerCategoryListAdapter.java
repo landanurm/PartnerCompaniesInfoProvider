@@ -1,10 +1,10 @@
-package com.landanurm.partnercompaniesinfoprovider.partner_category_list_activity;
+package com.landanurm.partner_companies_info_provider.partner_category_list_activity;
 
 import android.content.Context;
 
-import com.landanurm.partnercompaniesinfoprovider.data_structure.PartnerCategory;
-import com.landanurm.partnercompaniesinfoprovider.simple_array_adapter.ItemToTitleConvertor;
-import com.landanurm.partnercompaniesinfoprovider.simple_array_adapter.SimpleArrayAdapter;
+import com.landanurm.partner_companies_info_provider.data_structure.PartnerCategory;
+import com.landanurm.partner_companies_info_provider.simple_array_adapter.ItemToTitleConvertor;
+import com.landanurm.partner_companies_info_provider.simple_array_adapter.SimpleArrayAdapter;
 
 import java.util.List;
 

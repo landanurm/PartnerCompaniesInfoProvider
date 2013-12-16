@@ -1,10 +1,10 @@
-package com.landanurm.partnercompaniesinfoprovider;
+package com.landanurm.partner_companies_info_provider;
 
 import android.util.Xml;
 
-import com.landanurm.partnercompaniesinfoprovider.data_structure.Partner;
-import com.landanurm.partnercompaniesinfoprovider.data_structure.PartnerCategory;
-import com.landanurm.partnercompaniesinfoprovider.data_structure.PartnerPoint;
+import com.landanurm.partner_companies_info_provider.data_structure.Partner;
+import com.landanurm.partner_companies_info_provider.data_structure.PartnerCategory;
+import com.landanurm.partner_companies_info_provider.data_structure.PartnerPoint;
 
 import org.xmlpull.v1.XmlPullParser;
 

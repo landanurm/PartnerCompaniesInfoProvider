@@ -1,8 +1,7 @@
-package com.landanurm.partnercompaniesinfoprovider.partner_info_activity;
+package com.landanurm.partner_companies_info_provider.partner_info_activity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -16,31 +15,55 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.landanurm.partnercompaniesinfoprovider.Keys;
-import com.landanurm.partnercompaniesinfoprovider.R;
-import com.landanurm.partnercompaniesinfoprovider.data_structure.Partner;
-import com.landanurm.partnercompaniesinfoprovider.data_structure.PartnerPoint;
+import com.landanurm.partner_companies_info_provider.Keys;
+import com.landanurm.partner_companies_info_provider.R;
+import com.landanurm.partner_companies_info_provider.data_structure.Partner;
+import com.landanurm.partner_companies_info_provider.data_structure.PartnerPoint;
+import com.landanurm.partner_companies_info_provider.db_util.PartnerCategoriesInfoProvider;
+import com.landanurm.partner_companies_info_provider.partner_list_activity.PartnerListItem;
 
 import java.util.List;
 
 public class PartnerInfoActivity extends Activity {
 
     private GoogleMap googleMap;
-    private Partner partner;
+    private Partner partnerToShow;
+    private PartnerCategoriesInfoProvider partnerCategoriesInfoProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_partner_info);
 
-        googleMap = getMap();
+        partnerCategoriesInfoProvider = new PartnerCategoriesInfoProvider(this);
 
-        if (savedInstanceState == null) {
-            partner = getPartnerPassedThroughIntent();
-        } else {
-            partner = restoreSavedPartner(savedInstanceState);
-        }
+        partnerToShow = getPartnerToShow(savedInstanceState);
+        googleMap = getMap();
         showPartnerInfo();
+    }
+
+    private Partner getPartnerToShow(Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            return getPartnerToShow();
+        } else {
+            return restorePartnerToShow(savedInstanceState);
+        }
+    }
+
+    private Partner getPartnerToShow() {
+        PartnerListItem partnerListItem = (PartnerListItem)
+                getIntent().getSerializableExtra(Keys.partnerListItemToShow);
+        return partnerCategoriesInfoProvider.getPartnerById(partnerListItem.id);
+    }
+
+    private Partner restorePartnerToShow(Bundle savedInstanceState) {
+        return (Partner) savedInstanceState.getSerializable(Keys.partner);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(Keys.partner, partnerToShow);
     }
 
     @SuppressLint("NewApi")
@@ -49,26 +72,11 @@ public class PartnerInfoActivity extends Activity {
         return mapFragment.getMap();
     }
 
-    private Partner getPartnerPassedThroughIntent() {
-        Intent intent = getIntent();
-        return (Partner) intent.getSerializableExtra(Keys.partner);
-    }
-
-    private Partner restoreSavedPartner(Bundle savedInstanceState) {
-        return (Partner) savedInstanceState.getSerializable(Keys.partner);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putSerializable(Keys.partner, partner);
-    }
-
     private void showPartnerInfo() {
-        setTitle(partner.title);
-        setTextView(R.id.full_title, partner.fullTitle);
-        setTextView(R.id.sale_type, partner.saleType);
-        showPartnerPoints(partner.partnerPoints);
+        setTitle(partnerToShow.title);
+        setTextView(R.id.full_title, partnerToShow.fullTitle);
+        setTextView(R.id.sale_type, partnerToShow.saleType);
+        showPartnerPoints(partnerToShow.partnerPoints);
     }
 
     private void setTextView(int textViewId, String text) {
@@ -91,12 +99,35 @@ public class PartnerInfoActivity extends Activity {
     private MarkerOptions prepareMarkerOption(PartnerPoint partnerPoint) {
         return new MarkerOptions()
                 .title(partnerPoint.title)
-                .snippet(partnerPoint.address + "  " + getPhoneText() + " " + partnerPoint.phone)
+                .snippet(prepareSnippet(partnerPoint))
                 .position(new LatLng(partnerPoint.latitude, partnerPoint.longitude));
     }
 
-    private String getPhoneText() {
-        return getResources().getString(R.string.phoneText);
+    private String prepareSnippet(PartnerPoint partnerPoint) {
+        String snippet = "";
+        if (partnerPointHasAddress(partnerPoint)) {
+            snippet = partnerPoint.address + "  ";
+        }
+        if (partnerPointHasPhoneNumber(partnerPoint)) {
+            snippet += (getPhoneDescriptionText() + " " + partnerPoint.phone);
+        }
+        return snippet;
+    }
+
+    private boolean partnerPointHasAddress(PartnerPoint partnerPoint) {
+        return notEmpty(partnerPoint.address);
+    }
+
+    private boolean partnerPointHasPhoneNumber(PartnerPoint partnerPoint) {
+        return notEmpty(partnerPoint.phone);
+    }
+
+    private boolean notEmpty(String str) {
+        return !str.trim().isEmpty();
+    }
+
+    private String getPhoneDescriptionText() {
+        return getResources().getString(R.string.phoneDescriptionText);
     }
 
     private void runAfterCreatingMapView(final Runnable runnable) {
@@ -130,7 +161,7 @@ public class PartnerInfoActivity extends Activity {
             return;
         }
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        for (PartnerPoint each : partner.partnerPoints) {
+        for (PartnerPoint each : partnerToShow.partnerPoints) {
             builder.include(new LatLng(each.latitude, each.longitude));
         }
         LatLngBounds bounds = builder.build();
@@ -139,7 +170,7 @@ public class PartnerInfoActivity extends Activity {
     }
 
     private boolean noPartnerPoints() {
-        return partner.partnerPoints.isEmpty();
+        return partnerToShow.partnerPoints.isEmpty();
     }
 
     private int getMapPadding() {

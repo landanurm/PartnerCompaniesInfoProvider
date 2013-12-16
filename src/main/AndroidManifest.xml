@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.landanurm.partnercompaniesinfoprovider"
+    package="com.landanurm.partner_companies_info_provider"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -27,7 +27,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.landanurm.partnercompaniesinfoprovider.partner_category_list_activity.PartnerCategoryListActivity"
+            android:name=".partner_category_list_activity.PartnerCategoryListActivity"
             android:label="@string/partner_categories_list_activity_title" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,11 +36,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.landanurm.partnercompaniesinfoprovider.partner_list_activity.PartnerListActivity"
+            android:name=".partner_list_activity.PartnerListActivity"
             android:label="@string/title_activity_partner_list" >
         </activity>
         <activity
-            android:name="com.landanurm.partnercompaniesinfoprovider.partner_info_activity.PartnerInfoActivity"
+            android:name=".partner_info_activity.PartnerInfoActivity"
             android:label="@string/title_activity_partner_info" >
         </activity>
 
@@ -50,7 +50,7 @@
 
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyDyrESTlOBIVQ7ggRnj42wv9LvuIGRJAs8" />
+            android:value="AIzaSyBilxZ_btJST0krke4iC2nB07i24gfH6RE" />
     </application>
 
 </manifest>

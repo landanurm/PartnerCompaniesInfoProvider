@@ -1,4 +1,4 @@
-package com.landanurm.partnercompaniesinfoprovider.data_structure;
+package com.landanurm.partner_companies_info_provider.data_structure;
 
 import java.io.Serializable;
 import java.util.List;
@@ -36,7 +36,6 @@ public class Partner implements Serializable {
         if (!(obj instanceof Partner)) {
             return false;
         }
-
         Partner other = (Partner) obj;
         return (id == other.id) &&
                title.equals(other.title) &&
@@ -47,7 +46,8 @@ public class Partner implements Serializable {
 
     @Override
     public int hashCode() {
-        return id + title.hashCode() + fullTitle.hashCode() + saleType.hashCode() + partnerPoints.hashCode();
+        return id + title.hashCode() + fullTitle.hashCode() +
+                saleType.hashCode() + partnerPoints.hashCode();
     }
 
 

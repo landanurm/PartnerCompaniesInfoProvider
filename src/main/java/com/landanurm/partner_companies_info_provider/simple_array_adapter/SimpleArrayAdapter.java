@@ -1,4 +1,4 @@
-package com.landanurm.partnercompaniesinfoprovider.simple_array_adapter;
+package com.landanurm.partner_companies_info_provider.simple_array_adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;

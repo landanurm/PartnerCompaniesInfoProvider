@@ -9,6 +9,6 @@
     <string name="title_activity_partner_info">PartnerInfoActivity</string>
     <string name="full_title_label">Full Title</string>
     <string name="sale_type_label">Sale Type</string>
-    <string name="phoneText">Тел.</string>
+    <string name="phoneDescriptionText">Тел.</string>
 
 </resources>
