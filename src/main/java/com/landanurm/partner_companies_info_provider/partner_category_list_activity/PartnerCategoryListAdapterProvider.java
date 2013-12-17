@@ -4,7 +4,7 @@ import android.content.Context;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 
-import com.landanurm.partner_companies_info_provider.db_util.PartnerCategoriesDataProvider;
+import com.landanurm.partner_companies_info_provider.db_util.data_providers.PartnerCategoryTitlesProvider;
 
 import java.io.Serializable;
 import java.util.List;
@@ -15,16 +15,16 @@ import java.util.List;
 public class PartnerCategoryListAdapterProvider {
     private final ArrayAdapter<String> adapter;
     private final List<String> categoryTitles;
-    private final PartnerCategoriesDataProvider partnerCategoriesDataProvider;
+    private final PartnerCategoryTitlesProvider partnerCategoryTitlesProvider;
 
     public PartnerCategoryListAdapterProvider(Context context) {
-        partnerCategoriesDataProvider = new PartnerCategoriesDataProvider(context);
-        categoryTitles = partnerCategoriesDataProvider.getPartnerCategoryTitles();
+        partnerCategoryTitlesProvider = new PartnerCategoryTitlesProvider(context);
+        categoryTitles = partnerCategoryTitlesProvider.getPartnerCategoryTitles();
         adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, categoryTitles);
     }
 
     public PartnerCategoryListAdapterProvider(Context context, Serializable savedState) {
-        partnerCategoriesDataProvider = new PartnerCategoriesDataProvider(context);
+        partnerCategoryTitlesProvider = new PartnerCategoryTitlesProvider(context);
         categoryTitles = (List<String>) savedState;
         adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, categoryTitles);
     }
@@ -35,7 +35,7 @@ public class PartnerCategoryListAdapterProvider {
 
     public void updateListFromDatabase() {
         categoryTitles.clear();
-        categoryTitles.addAll(partnerCategoriesDataProvider.getPartnerCategoryTitles());
+        categoryTitles.addAll(partnerCategoryTitlesProvider.getPartnerCategoryTitles());
         adapter.notifyDataSetChanged();
     }
 

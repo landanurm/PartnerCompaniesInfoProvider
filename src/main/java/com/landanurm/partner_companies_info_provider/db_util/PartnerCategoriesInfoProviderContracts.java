@@ -11,6 +11,7 @@ public final class PartnerCategoriesInfoProviderContracts {
 
     public static abstract class PartnerCategoriesContract implements BaseColumns {
         public static final String TABLE_NAME = "partner_categories";
+
         public static final String COLUMN_NAME_TITLE = "title";
         public static final String COLUMN_NAME_PARTNER_IDS = "partner_ids";
     }
