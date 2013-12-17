@@ -38,7 +38,6 @@ public class PartnerCategoriesInfoProvider {
         dbHelper = null;
     }
 
-
     public List<String> getPartnerCategoryTitles() {
         initDatabase();
         String[] columns = {

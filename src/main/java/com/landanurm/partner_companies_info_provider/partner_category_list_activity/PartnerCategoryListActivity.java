@@ -7,61 +7,44 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 
 import com.landanurm.partner_companies_info_provider.Keys;
-import com.landanurm.partner_companies_info_provider.db_util.PartnerCategoriesInfoProvider;
 import com.landanurm.partner_companies_info_provider.partner_list_activity.PartnerListActivity;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+public class PartnerCategoryListActivity extends ListActivity
+        implements OnDataUpdatingProgressListener, AdapterView.OnItemClickListener {
 
-public class PartnerCategoryListActivity extends ListActivity implements OnDataUpdatingProgressListener, AdapterView.OnItemClickListener {
-
-    private ArrayAdapter<String> adapter;
-    private boolean dataUpdated;
-    private List<String> itemTitles;
-    private PartnerCategoriesInfoProvider partnerCategoriesInfoProvider;
+    private boolean updatedData;
     private ProgressDialog progressDialog;
+    private PartnerCategoryListAdapterProvider adapterProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        partnerCategoriesInfoProvider = new PartnerCategoriesInfoProvider(this);
+        if (savedInstanceState == null) {
+            adapterProvider = new PartnerCategoryListAdapterProvider(this);
+        } else {
+            adapterProvider = new PartnerCategoryListAdapterProvider(this, savedInstanceState);
+        }
 
-        itemTitles = new ArrayList<String>();
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, itemTitles);
-        setListAdapter(adapter);
+        setListAdapter(adapterProvider.getAdapter());
         getListView().setOnItemClickListener(this);
 
-        progressDialog = prepareProgressDialog();
-
-        if (needToUpdateData(savedInstanceState)) {
-            runDataUpdating();
-        } else {
-            updatePartnerCategoriesList();
+        updatedData = updatedData(savedInstanceState);
+        if (!updatedData) {
+            updateData();
         }
     }
 
-    private ProgressDialog prepareProgressDialog() {
-        ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Please, wait...");
-        progressDialog.setIndeterminate(true);
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.setCanceledOnTouchOutside(false);
-        progressDialog.setCancelable(true);
-        return progressDialog;
+    private boolean updatedData(Bundle savedInstanceState) {
+        return (savedInstanceState != null) &&
+                (savedInstanceState.getBoolean(Keys.updatedData) == true);
     }
 
-    private boolean needToUpdateData(Bundle savedInstanceState) {
-        return (savedInstanceState == null) ||
-                (savedInstanceState.getBoolean(Keys.dataUpdated) == false);
-    }
-
-    private void runDataUpdating() {
-        dataUpdated = false;
+    private void updateData() {
+        progressDialog = ProgressDialogProvider.prepareProgressDialog(this);
+        
         final PartnerCategoriesUpdatingTask task = new PartnerCategoriesUpdatingTask(this, this);
         progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
@@ -75,34 +58,29 @@ public class PartnerCategoryListActivity extends ListActivity implements OnDataU
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(Keys.dataUpdated, dataUpdated);
-        if (dataUpdated) {
-            outState.putSerializable(Keys.partnerCategories, (Serializable) itemTitles);
+        outState.putBoolean(Keys.updatedData, updatedData);
+        if (updatedData) {
+            adapterProvider.saveStateInto(outState);
         }
-    }
-
-    private void updatePartnerCategoriesList() {
-        itemTitles.clear();
-        itemTitles.addAll(partnerCategoriesInfoProvider.getPartnerCategoryTitles());
-        adapter.notifyDataSetChanged();
-        dataUpdated = true;
     }
 
     @Override
     public void onPreDataUpdating() {
+        updatedData = false;
         progressDialog.show();
     }
 
     @Override
     public void onPostDataUpdating() {
-        updatePartnerCategoriesList();
+        updatedData = true;
+        adapterProvider.updateDataFromDatabase();
         progressDialog.dismiss();
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        String selectedItem = adapter.getItem(position);
-        showPartnerCategoryInfo(selectedItem);
+        String titleOfSelectedCategory = adapterProvider.getPartnerCategoryTitleByPosition(position);
+        showPartnerCategoryInfo(titleOfSelectedCategory);
     }
 
     private void showPartnerCategoryInfo(String partnerCategoryTitle) {

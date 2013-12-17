@@ -167,6 +167,7 @@ public class PartnerInfoActivity extends Activity {
         LatLngBounds bounds = builder.build();
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, getMapPadding());
         googleMap.moveCamera(cameraUpdate);
+
     }
 
     private boolean noPartnerPoints() {

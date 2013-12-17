@@ -17,6 +17,7 @@ import java.util.List;
  * Created by Leonid on 03.12.13.
  */
 public class PartnerCategoriesUpdatingTask extends AsyncTask<Void, Void, Void> {
+
     private final Context context;
     private final OnDataUpdatingProgressListener listener;
 
@@ -37,19 +38,18 @@ public class PartnerCategoriesUpdatingTask extends AsyncTask<Void, Void, Void> {
         PowerManager.WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getClass().getName());
         wakeLock.acquire();
         try {
-            List<PartnerCategory> partnerCategories = downloadAndParsePartnerCategories();
-            saveToDatabase(partnerCategories);
+            updatePartnerCategories();
         } catch (Exception e) {
-            Log.d("com.landanurm.partner_companies_info_provider", e.getMessage());
+            processUpdatingException(e);
         } finally {
             wakeLock.release();
         }
         return null;
     }
 
-    private void saveToDatabase(List<PartnerCategory> partnerCategories) {
-        PartnerCategoriesSaver partnerCategoriesSaver = new PartnerCategoriesSaver(context);
-        partnerCategoriesSaver.saveToDatabase(partnerCategories);
+    private void updatePartnerCategories() throws Exception {
+        List<PartnerCategory> partnerCategories = downloadAndParsePartnerCategories();
+        saveToDatabase(partnerCategories);
     }
 
     private List<PartnerCategory> downloadAndParsePartnerCategories() throws Exception {
@@ -57,6 +57,15 @@ public class PartnerCategoriesUpdatingTask extends AsyncTask<Void, Void, Void> {
         URLConnection connection = url.openConnection();
         PartnerCategoriesParser parser = new PartnerCategoriesParser();
         return parser.parsePartnerCategories(connection.getInputStream());
+    }
+
+    private void saveToDatabase(List<PartnerCategory> partnerCategories) {
+        PartnerCategoriesSaver partnerCategoriesSaver = new PartnerCategoriesSaver(context);
+        partnerCategoriesSaver.saveToDatabase(partnerCategories);
+    }
+
+    private void processUpdatingException(Exception e) {
+        Log.d("com.landanurm.partner_companies_info_provider", e.getMessage());
     }
 
     @Override
