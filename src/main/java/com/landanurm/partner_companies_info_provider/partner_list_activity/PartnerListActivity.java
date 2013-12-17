@@ -50,8 +50,8 @@ public class PartnerListActivity extends ListActivity implements AdapterView.OnI
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        PartnerListItem item = adapter.getItem(position);
-        showPartnerInfo(item);
+        PartnerListItem partnerToShow = adapter.getItem(position);
+        showPartnerInfo(partnerToShow);
     }
 
     private void showPartnerInfo(PartnerListItem partnerListItem) {

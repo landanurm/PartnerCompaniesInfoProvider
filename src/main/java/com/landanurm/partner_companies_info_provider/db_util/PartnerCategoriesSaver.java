@@ -70,8 +70,7 @@ public class PartnerCategoriesSaver {
         insertStatement.executeInsert();
     }
 
-    private void savePartnerCategoryToDatabase(String title,
-                                               List<Integer> partnerIds) {
+    private void savePartnerCategoryToDatabase(String title, List<Integer> partnerIds) {
         String sql = "INSERT INTO " + PartnerCategoriesContract.TABLE_NAME + " (" +
                           PartnerCategoriesContract.COLUMN_NAME_TITLE + ", " +
                           PartnerCategoriesContract.COLUMN_NAME_PARTNER_IDS +

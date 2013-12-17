@@ -17,12 +17,12 @@ class DataProviderBase {
         this.context = context;
     }
 
-    final protected void initDatabase() {
+    protected final void initDatabase() {
         dbHelper = new PartnerCategoriesInfoProviderDbHelper(context);
         db = dbHelper.getReadableDatabase();
     }
 
-    final protected void releaseDatabase() {
+    protected final void releaseDatabase() {
         db.close();
         db = null;
         dbHelper.close();

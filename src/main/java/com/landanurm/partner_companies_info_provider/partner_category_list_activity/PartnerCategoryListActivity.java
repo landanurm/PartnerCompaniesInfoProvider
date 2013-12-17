@@ -85,12 +85,8 @@ public class PartnerCategoryListActivity extends ListActivity
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         String titleOfSelectedCategory = adapterProvider.getPartnerCategoryTitleByPosition(position);
-        showPartnerCategoryInfo(titleOfSelectedCategory);
-    }
-
-    private void showPartnerCategoryInfo(String partnerCategoryTitle) {
         Intent intent = new Intent(this, PartnerListActivity.class);
-        intent.putExtra(Keys.partnerCategoryTitle, partnerCategoryTitle);
+        intent.putExtra(Keys.partnerCategoryTitle, titleOfSelectedCategory);
         startActivity(intent);
     }
 }
