@@ -7,6 +7,6 @@ public class Keys {
     public static final String updatedData = "updatedData";
     public static final String partnerListItemToShow = "partnerListItemToShow";
     public static final String partnerCategoryTitle = "partnerCategoryTitle";
-    public static final String partnerCategories = "partnerCategories";
+    public static final String partnerCategoryListAdapterState = "partnerCategoryListAdapterState";
     public static final String partner = "partner";
 }

@@ -1,11 +1,9 @@
 package com.landanurm.partner_companies_info_provider.partner_category_list_activity;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 
-import com.landanurm.partner_companies_info_provider.Keys;
 import com.landanurm.partner_companies_info_provider.db_util.PartnerCategoriesInfoProvider;
 
 import java.io.Serializable;
@@ -16,19 +14,19 @@ import java.util.List;
  */
 public class PartnerCategoryListAdapterProvider {
     private final ArrayAdapter<String> adapter;
-    private final List<String> itemTitles;
+    private final List<String> categoryTitles;
     private final PartnerCategoriesInfoProvider partnerCategoriesInfoProvider;
 
     public PartnerCategoryListAdapterProvider(Context context) {
         partnerCategoriesInfoProvider = new PartnerCategoriesInfoProvider(context);
-        itemTitles = partnerCategoriesInfoProvider.getPartnerCategoryTitles();
-        adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, itemTitles);
+        categoryTitles = partnerCategoriesInfoProvider.getPartnerCategoryTitles();
+        adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, categoryTitles);
     }
 
-    public PartnerCategoryListAdapterProvider(Context context, Bundle savedInstanceState) {
+    public PartnerCategoryListAdapterProvider(Context context, Serializable savedState) {
         partnerCategoriesInfoProvider = new PartnerCategoriesInfoProvider(context);
-        itemTitles = (List<String>) savedInstanceState.getSerializable(Keys.partnerCategories);
-        adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, itemTitles);
+        categoryTitles = (List<String>) savedState;
+        adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, categoryTitles);
     }
 
     public ListAdapter getAdapter() {
@@ -36,8 +34,8 @@ public class PartnerCategoryListAdapterProvider {
     }
 
     public void updateDataFromDatabase() {
-        itemTitles.clear();
-        itemTitles.addAll(partnerCategoriesInfoProvider.getPartnerCategoryTitles());
+        categoryTitles.clear();
+        categoryTitles.addAll(partnerCategoriesInfoProvider.getPartnerCategoryTitles());
         adapter.notifyDataSetChanged();
     }
 
@@ -45,7 +43,7 @@ public class PartnerCategoryListAdapterProvider {
         return adapter.getItem(position);
     }
 
-    public void saveStateInto(Bundle outState) {
-        outState.putSerializable(Keys.partnerCategories, (Serializable) itemTitles);
+    public Serializable getState() {
+        return (Serializable) categoryTitles;
     }
 }
