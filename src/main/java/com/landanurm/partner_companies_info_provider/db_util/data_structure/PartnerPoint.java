@@ -1,4 +1,4 @@
-package com.landanurm.partner_companies_info_provider.data_structure;
+package com.landanurm.partner_companies_info_provider.db_util.data_structure;
 
 import java.io.Serializable;
 

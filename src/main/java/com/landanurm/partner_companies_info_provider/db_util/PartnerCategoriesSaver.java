@@ -5,8 +5,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
 import com.landanurm.partner_companies_info_provider.SerializableConvertor;
-import com.landanurm.partner_companies_info_provider.data_structure.Partner;
-import com.landanurm.partner_companies_info_provider.data_structure.PartnerCategory;
+import com.landanurm.partner_companies_info_provider.db_util.data_structure.Partner;
+import com.landanurm.partner_companies_info_provider.db_util.data_structure.PartnerCategory;
 import com.landanurm.partner_companies_info_provider.db_util.PartnerCategoriesInfoProviderContracts.PartnerCategoriesContract;
 import com.landanurm.partner_companies_info_provider.db_util.PartnerCategoriesInfoProviderContracts.PartnersContract;
 

@@ -7,7 +7,7 @@ import android.util.Log;
 
 import com.landanurm.partner_companies_info_provider.PartnerCategoriesParser;
 import com.landanurm.partner_companies_info_provider.db_util.PartnerCategoriesSaver;
-import com.landanurm.partner_companies_info_provider.data_structure.PartnerCategory;
+import com.landanurm.partner_companies_info_provider.db_util.data_structure.PartnerCategory;
 
 import java.net.URL;
 import java.net.URLConnection;

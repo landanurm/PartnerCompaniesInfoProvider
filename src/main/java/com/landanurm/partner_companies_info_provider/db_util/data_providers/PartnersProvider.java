@@ -4,8 +4,8 @@ import android.content.Context;
 import android.database.Cursor;
 
 import com.landanurm.partner_companies_info_provider.SerializableConvertor;
-import com.landanurm.partner_companies_info_provider.data_structure.Partner;
-import com.landanurm.partner_companies_info_provider.data_structure.PartnerPoint;
+import com.landanurm.partner_companies_info_provider.db_util.data_structure.Partner;
+import com.landanurm.partner_companies_info_provider.db_util.data_structure.PartnerPoint;
 
 import com.landanurm.partner_companies_info_provider.db_util.PartnerCategoriesInfoProviderContracts.PartnersContract;
 

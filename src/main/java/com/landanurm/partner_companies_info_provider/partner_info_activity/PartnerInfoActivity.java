@@ -17,8 +17,8 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.landanurm.partner_companies_info_provider.Keys;
 import com.landanurm.partner_companies_info_provider.R;
-import com.landanurm.partner_companies_info_provider.data_structure.Partner;
-import com.landanurm.partner_companies_info_provider.data_structure.PartnerPoint;
+import com.landanurm.partner_companies_info_provider.db_util.data_structure.Partner;
+import com.landanurm.partner_companies_info_provider.db_util.data_structure.PartnerPoint;
 import com.landanurm.partner_companies_info_provider.db_util.data_providers.PartnersProvider;
 import com.landanurm.partner_companies_info_provider.partner_list_activity.PartnerListItem;
 
