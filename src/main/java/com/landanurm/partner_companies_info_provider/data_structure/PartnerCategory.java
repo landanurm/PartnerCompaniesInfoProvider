@@ -1,15 +1,15 @@
-package com.landanurm.partner_companies_info_provider.partner_list_activity;
+package com.landanurm.partner_companies_info_provider.data_structure;
 
 import java.io.Serializable;
 
 /**
- * Created by Leonid on 09.12.13.
+ * Created by Leonid on 02.12.13.
  */
-public class PartnerListItem implements Serializable {
+public class PartnerCategory implements Serializable {
     public final int id;
     public final String title;
 
-    public PartnerListItem(int id, String title) {
+    public PartnerCategory(int id, String title) {
         this.id = id;
         this.title = title;
     }
@@ -22,10 +22,11 @@ public class PartnerListItem implements Serializable {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof PartnerListItem)) {
+        if (!(obj instanceof PartnerCategory)) {
             return false;
         }
-        PartnerListItem other = (PartnerListItem) obj;
+
+        PartnerCategory other = (PartnerCategory) obj;
         return (id == other.id) && title.equals(other.title);
     }
 

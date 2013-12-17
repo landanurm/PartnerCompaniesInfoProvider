@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.AdapterView;
 
 import com.landanurm.partner_companies_info_provider.Keys;
+import com.landanurm.partner_companies_info_provider.data_structure.PartnerCategory;
 import com.landanurm.partner_companies_info_provider.partner_list_activity.PartnerListActivity;
 
 import java.io.Serializable;
@@ -17,15 +18,15 @@ public class PartnerCategoryListActivity extends ListActivity
         implements OnDataUpdatingProgressListener, AdapterView.OnItemClickListener {
 
     private boolean updatedData;
-    private PartnerCategoryListAdapterProvider adapterProvider;
+    private PartnerCategoryListAdapter adapter;
     private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        adapterProvider = prepareAdapterProvider(savedInstanceState);
-        setListAdapter(adapterProvider.getAdapter());
+        adapter = prepareAdapter(savedInstanceState);
+        setListAdapter(adapter);
         getListView().setOnItemClickListener(this);
 
         updatedData = updatedData(savedInstanceState);
@@ -34,12 +35,12 @@ public class PartnerCategoryListActivity extends ListActivity
         }
     }
 
-    private PartnerCategoryListAdapterProvider prepareAdapterProvider(Bundle savedInstanceState) {
+    private PartnerCategoryListAdapter prepareAdapter(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
-            return new PartnerCategoryListAdapterProvider(this);
+            return PartnerCategoryListAdapter.newInstance(this);
         } else {
             Serializable state = savedInstanceState.getSerializable(Keys.partnerCategoryListAdapterState);
-            return new PartnerCategoryListAdapterProvider(this, state);
+            return PartnerCategoryListAdapter.newInstance(this, state);
         }
     }
 
@@ -66,7 +67,7 @@ public class PartnerCategoryListActivity extends ListActivity
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(Keys.updatedData, updatedData);
-        outState.putSerializable(Keys.partnerCategoryListAdapterState, adapterProvider.getState());
+        outState.putSerializable(Keys.partnerCategoryListAdapterState, adapter.getState());
     }
 
     @Override
@@ -78,15 +79,15 @@ public class PartnerCategoryListActivity extends ListActivity
     @Override
     public void onPostDataUpdating() {
         updatedData = true;
-        adapterProvider.updateListFromDatabase();
+        adapter.updateListFromDatabase();
         progressDialog.dismiss();
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        String titleOfSelectedCategory = adapterProvider.getPartnerCategoryTitleByPosition(position);
+        PartnerCategory selectedCategory = adapter.getItem(position);
         Intent intent = new Intent(this, PartnerListActivity.class);
-        intent.putExtra(Keys.partnerCategoryTitle, titleOfSelectedCategory);
+        intent.putExtra(Keys.partnerCategoryToShow, selectedCategory);
         startActivity(intent);
     }
 }

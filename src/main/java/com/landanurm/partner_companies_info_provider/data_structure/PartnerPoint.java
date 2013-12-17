@@ -1,4 +1,4 @@
-package com.landanurm.partner_companies_info_provider.db_util.data_structure;
+package com.landanurm.partner_companies_info_provider.data_structure;
 
 import java.io.Serializable;
 
@@ -11,17 +11,20 @@ public class PartnerPoint implements Serializable {
     public final String phone;
     public final double longitude;
     public final double latitude;
+    public final int partnerId;
 
     public PartnerPoint(String title,
                         String address,
                         String phone,
                         double longitude,
-                        double latitude) {
+                        double latitude,
+                        int partnerId) {
         this.title = title;
         this.address = address;
         this.phone = phone;
         this.longitude = longitude;
         this.latitude = latitude;
+        this.partnerId = partnerId;
     }
 
     @Override
@@ -41,12 +44,13 @@ public class PartnerPoint implements Serializable {
                address.equals(other.address) &&
                phone.equals(other.phone) &&
                (longitude == other.longitude) &&
-               (latitude == other.latitude);
+               (latitude == other.latitude) &&
+               (partnerId == other.partnerId);
     }
 
     @Override
     public int hashCode() {
-        return title.hashCode() + address.hashCode() + phone.hashCode()
-                + ((Double) longitude).hashCode() + ((Double) latitude).hashCode();
+        return title.hashCode() + address.hashCode() + phone.hashCode() +
+               ((Double) longitude).hashCode() + ((Double) latitude).hashCode() + partnerId;
     }
 }

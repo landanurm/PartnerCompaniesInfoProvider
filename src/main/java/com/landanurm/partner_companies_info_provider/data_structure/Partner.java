@@ -1,7 +1,6 @@
-package com.landanurm.partner_companies_info_provider.db_util.data_structure;
+package com.landanurm.partner_companies_info_provider.data_structure;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * Created by Leonid on 02.12.13.
@@ -11,18 +10,18 @@ public class Partner implements Serializable {
     public final String title;
     public final String fullTitle;
     public final String saleType;
-    public final List<PartnerPoint> partnerPoints;
+    public final int categoryId;
 
     public Partner(int id,
                    String title,
                    String fullTitle,
                    String saleType,
-                   List<PartnerPoint> partnerPoints) {
+                   int categoryId) {
         this.id = id;
         this.title = title;
         this.fullTitle = fullTitle;
         this.saleType = saleType;
-        this.partnerPoints = partnerPoints;
+        this.categoryId = categoryId;
     }
 
     @Override
@@ -41,13 +40,12 @@ public class Partner implements Serializable {
                title.equals(other.title) &&
                fullTitle.equals(other.fullTitle) &&
                saleType.equals(other.saleType) &&
-               partnerPoints.equals(other.partnerPoints);
+               (categoryId == other.categoryId);
     }
 
     @Override
     public int hashCode() {
-        return id + title.hashCode() + fullTitle.hashCode() +
-                saleType.hashCode() + partnerPoints.hashCode();
+        return id + title.hashCode() + fullTitle.hashCode() + saleType.hashCode() + categoryId;
     }
 
 

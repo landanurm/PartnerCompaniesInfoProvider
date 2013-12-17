@@ -2,9 +2,9 @@ package com.landanurm.partner_companies_info_provider;
 
 import android.util.Xml;
 
-import com.landanurm.partner_companies_info_provider.db_util.data_structure.Partner;
-import com.landanurm.partner_companies_info_provider.db_util.data_structure.PartnerCategory;
-import com.landanurm.partner_companies_info_provider.db_util.data_structure.PartnerPoint;
+import com.landanurm.partner_companies_info_provider.data_structure.Partner;
+import com.landanurm.partner_companies_info_provider.data_structure.PartnerCategory;
+import com.landanurm.partner_companies_info_provider.data_structure.PartnerPoint;
 
 import org.xmlpull.v1.XmlPullParser;
 
@@ -20,13 +20,13 @@ public class PartnerCategoriesParser {
 
     private static final String NAMESPACE = null;
 
-    public List<PartnerCategory> parsePartnerCategories(InputStream in) throws Exception {
+    public ParsedData parsePartnerCategories(InputStream in) throws Exception {
         try {
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(in, null);
             parser.nextTag();
-            return parsePartnerCategories(parser);
+            return parse(parser);
         } finally {
             tryClose(in);
         }
@@ -37,33 +37,51 @@ public class PartnerCategoriesParser {
             try {
                 inputStream.close();
             } catch (IOException e) {
+                // do nothing
             }
         }
     }
 
-    private List<PartnerCategory> parsePartnerCategories(XmlPullParser parser) throws Exception {
+    private ParsedData parse(XmlPullParser parser) throws Exception {
+        List<PartnerCategory> outPartnerCategories = new ArrayList<PartnerCategory>();
+        List<Partner> outPartners = new ArrayList<Partner>();
+        List<PartnerPoint> outPartnerPoints = new ArrayList<PartnerPoint>();
+        parse(parser, outPartnerCategories, outPartners, outPartnerPoints);
+        return new ParsedData(outPartnerCategories, outPartners, outPartnerPoints);
+    }
+
+    private void parse(XmlPullParser parser,
+                       List<PartnerCategory> outPartnerCategories,
+                       List<Partner> outPartners,
+                       List<PartnerPoint> outPartnerPoints) throws Exception {
+
         parser.require(XmlPullParser.START_TAG, NAMESPACE, "partner-categories");
 
-        List<PartnerCategory> partnerCategories = new ArrayList<PartnerCategory>();
+        int partnerCategoryId = 0;
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             String name = parser.getName();
             if (name.equals("partner-category")) {
-                partnerCategories.add(parsePartnerCategory(parser));
+                ++partnerCategoryId;
+                PartnerCategory partnerCategory = parsePartnerCategory(
+                        parser, outPartners, outPartnerPoints, partnerCategoryId
+                );
+                outPartnerCategories.add(partnerCategory);
             } else {
                 skip(parser);
             }
         }
-        return partnerCategories;
     }
 
-    private PartnerCategory parsePartnerCategory(XmlPullParser parser) throws Exception {
+    private PartnerCategory parsePartnerCategory(XmlPullParser parser,
+                                                 List<Partner> outPartners,
+                                                 List<PartnerPoint> outPartnerPoints,
+                                                 int partnerCategoryId) throws Exception {
         parser.require(XmlPullParser.START_TAG, NAMESPACE, "partner-category");
 
         String title = null;
-        List<Partner> partners = null;
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
@@ -72,19 +90,19 @@ public class PartnerCategoriesParser {
             if (name.equals("title")) {
                 title = parseTitle(parser);
             } else if (name.equals("partners")) {
-                partners = parsePartners(parser);
+                parsePartners(parser, outPartners, outPartnerPoints, partnerCategoryId);
             } else {
                 skip(parser);
             }
         }
-        return new PartnerCategory(title, partners);
+        return new PartnerCategory(partnerCategoryId, title);
     }
 
     private String parseTitle(XmlPullParser parser) throws Exception {
-        return parseTextValueByTag(parser, "title");
+        return parseTextByTag(parser, "title");
     }
 
-    private String parseTextValueByTag(XmlPullParser parser, String tag) throws Exception {
+    private String parseTextByTag(XmlPullParser parser, String tag) throws Exception {
         parser.require(XmlPullParser.START_TAG, NAMESPACE, tag);
         String value = readText(parser);
         parser.require(XmlPullParser.END_TAG, NAMESPACE, tag);
@@ -100,32 +118,35 @@ public class PartnerCategoriesParser {
         return result;
     }
 
-    private List<Partner> parsePartners(XmlPullParser parser) throws Exception {
+    private void parsePartners(XmlPullParser parser,
+                               List<Partner> outPartners,
+                               List<PartnerPoint> outPartnerPoints,
+                               int partnerCategoryId) throws Exception {
         parser.require(XmlPullParser.START_TAG, NAMESPACE, "partners");
 
-        List<Partner> partners = new ArrayList<Partner>();
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             String name = parser.getName();
             if (name.equals("partner")) {
-                partners.add(parsePartner(parser));
+                Partner partner = parsePartner(parser, outPartnerPoints, partnerCategoryId);
+                outPartners.add(partner);
             } else {
                 skip(parser);
             }
         }
-        return partners;
     }
 
-    private Partner parsePartner(XmlPullParser parser) throws Exception {
+    private Partner parsePartner(XmlPullParser parser,
+                                 List<PartnerPoint> outPartnerPoints,
+                                 int partnerCategoryId) throws Exception {
         parser.require(XmlPullParser.START_TAG, NAMESPACE, "partner");
 
-        Integer id = null;
+        int id = 0;
         String title = null;
         String fullTitle = null;
         String saleType = null;
-        List<PartnerPoint> partnerPoints = null;
 
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
@@ -141,12 +162,12 @@ public class PartnerCategoriesParser {
             } else if (name.equals("sale-type")) {
                 saleType = parseSaleType(parser);
             } else if (name.equals("partner-points")) {
-                partnerPoints = parsePartnerPoints(parser);
+                parsePartnerPoints(parser, outPartnerPoints, id);
             } else {
                 skip(parser);
             }
         }
-        return new Partner(id, title, fullTitle, saleType, partnerPoints);
+        return new Partner(id, title, fullTitle, saleType, partnerCategoryId);
     }
 
     private Integer parseId(XmlPullParser parser) throws Exception {
@@ -161,32 +182,32 @@ public class PartnerCategoriesParser {
     }
 
     private String parseFullTitle(XmlPullParser parser) throws Exception {
-        return parseTextValueByTag(parser, "full-title");
+        return parseTextByTag(parser, "full-title");
     }
 
     private String parseSaleType(XmlPullParser parser) throws Exception {
-        return parseTextValueByTag(parser, "sale-type");
+        return parseTextByTag(parser, "sale-type");
     }
 
-    private List<PartnerPoint> parsePartnerPoints(XmlPullParser parser) throws Exception {
+    private void parsePartnerPoints(XmlPullParser parser,
+                                    List<PartnerPoint> outPartnerPoints,
+                                    int partnerId)  throws Exception {
         parser.require(XmlPullParser.START_TAG, NAMESPACE, "partner-points");
 
-        List<PartnerPoint> partnerPoints = new ArrayList<PartnerPoint>();
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             String name = parser.getName();
             if (name.equals("partner-point")) {
-                partnerPoints.add(parsePartnerPoint(parser));
+                outPartnerPoints.add(parsePartnerPoint(parser, partnerId));
             } else {
                 skip(parser);
             }
         }
-        return partnerPoints;
     }
 
-    private PartnerPoint parsePartnerPoint(XmlPullParser parser) throws Exception {
+    private PartnerPoint parsePartnerPoint(XmlPullParser parser, int partnerId) throws Exception {
         parser.require(XmlPullParser.START_TAG, NAMESPACE, "partner-point");
 
         String title = null;
@@ -214,34 +235,34 @@ public class PartnerCategoriesParser {
                 skip(parser);
             }
         }
-        return new PartnerPoint(title, address, phone, longitude, latitude);
+        return new PartnerPoint(title, address, phone, longitude, latitude, partnerId);
     }
 
     private String parseAddress(XmlPullParser parser) throws Exception {
-        return parseTextValueByTag(parser, "address");
+        return parseTextByTag(parser, "address");
     }
 
     private String parsePhone(XmlPullParser parser) throws Exception {
-        return parseTextValueByTag(parser, "phone");
+        return parseTextByTag(parser, "phone");
     }
 
     private double parseLongitude(XmlPullParser parser) throws Exception {
-        return parseBigDecimalValueByTag(parser, "longitude");
+        return parseDoubleByTag(parser, "longitude");
     }
 
-    private double parseBigDecimalValueByTag(XmlPullParser parser, String tag) throws Exception {
+    private double parseLatitude(XmlPullParser parser) throws Exception {
+        return parseDoubleByTag(parser, "latitude");
+    }
+
+    private double parseDoubleByTag(XmlPullParser parser, String tag) throws Exception {
         parser.require(XmlPullParser.START_TAG, NAMESPACE, tag);
-        double result = readBigDecimal(parser);
+        double result = readDouble(parser);
         parser.require(XmlPullParser.END_TAG, NAMESPACE, tag);
         return result;
     }
 
-    private double readBigDecimal(XmlPullParser parser) throws Exception {
+    private double readDouble(XmlPullParser parser) throws Exception {
         return Double.valueOf(readText(parser));
-    }
-
-    private double parseLatitude(XmlPullParser parser) throws Exception {
-        return parseBigDecimalValueByTag(parser, "latitude");
     }
 
     private void skip(XmlPullParser parser) throws Exception {

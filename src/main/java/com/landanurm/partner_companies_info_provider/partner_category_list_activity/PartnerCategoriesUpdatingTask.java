@@ -5,13 +5,12 @@ import android.os.AsyncTask;
 import android.os.PowerManager;
 import android.util.Log;
 
+import com.landanurm.partner_companies_info_provider.ParsedData;
 import com.landanurm.partner_companies_info_provider.PartnerCategoriesParser;
 import com.landanurm.partner_companies_info_provider.db_util.PartnerCategoriesSaver;
-import com.landanurm.partner_companies_info_provider.db_util.data_structure.PartnerCategory;
 
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.List;
 
 /**
  * Created by Leonid on 03.12.13.
@@ -48,20 +47,20 @@ public class PartnerCategoriesUpdatingTask extends AsyncTask<Void, Void, Void> {
     }
 
     private void updatePartnerCategories() throws Exception {
-        List<PartnerCategory> partnerCategories = downloadAndParsePartnerCategories();
-        saveToDatabase(partnerCategories);
+        ParsedData parsedData = downloadAndParsePartnerCategories();
+        saveToDatabase(parsedData);
     }
 
-    private List<PartnerCategory> downloadAndParsePartnerCategories() throws Exception {
+    private ParsedData downloadAndParsePartnerCategories() throws Exception {
         URL url = new URL(DataUrlProvider.getDataUrl());
         URLConnection connection = url.openConnection();
         PartnerCategoriesParser parser = new PartnerCategoriesParser();
         return parser.parsePartnerCategories(connection.getInputStream());
     }
 
-    private void saveToDatabase(List<PartnerCategory> partnerCategories) {
+    private void saveToDatabase(ParsedData parsedData) {
         PartnerCategoriesSaver partnerCategoriesSaver = new PartnerCategoriesSaver(context);
-        partnerCategoriesSaver.saveToDatabase(partnerCategories);
+        partnerCategoriesSaver.saveToDatabase(parsedData);
     }
 
     private void processUpdatingException(Exception e) {

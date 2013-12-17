@@ -1,7 +1,8 @@
-package com.landanurm.partner_companies_info_provider.partner_info_activity;
+package com.landanurm.partner_companies_info_provider.partner_activity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -17,53 +18,54 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.landanurm.partner_companies_info_provider.Keys;
 import com.landanurm.partner_companies_info_provider.R;
-import com.landanurm.partner_companies_info_provider.db_util.data_structure.Partner;
-import com.landanurm.partner_companies_info_provider.db_util.data_structure.PartnerPoint;
-import com.landanurm.partner_companies_info_provider.db_util.data_providers.PartnersProvider;
-import com.landanurm.partner_companies_info_provider.partner_list_activity.PartnerListItem;
+import com.landanurm.partner_companies_info_provider.data_structure.Partner;
+import com.landanurm.partner_companies_info_provider.data_structure.PartnerPoint;
+import com.landanurm.partner_companies_info_provider.db_util.data_providers.PartnerPointsProvider;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class PartnerInfoActivity extends Activity {
+public class PartnerActivity extends Activity {
 
     private GoogleMap googleMap;
+    private List<PartnerPoint> partnerPointsToShow;
     private Partner partnerToShow;
-    private PartnersProvider partnersProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_partner_info);
 
-        partnersProvider = new PartnersProvider(this);
+        prepareDataToShow(savedInstanceState);
 
-        partnerToShow = getPartnerToShow(savedInstanceState);
         googleMap = getMap();
         showPartnerInfo();
     }
 
-    private Partner getPartnerToShow(Bundle savedInstanceState) {
+    private void prepareDataToShow(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
-            return getPartnerToShow();
+            prepareDataToShow(getIntent());
         } else {
-            return restorePartnerToShow(savedInstanceState);
+            restoreDataToShow(savedInstanceState);
         }
     }
 
-    private Partner getPartnerToShow() {
-        PartnerListItem partnerListItem = (PartnerListItem)
-                getIntent().getSerializableExtra(Keys.partnerListItemToShow);
-        return partnersProvider.getPartnerById(partnerListItem.id);
+    private void prepareDataToShow(Intent intent) {
+        partnerToShow = (Partner) intent.getSerializableExtra(Keys.partnerToShow);
+        PartnerPointsProvider partnerPointsProvider = new PartnerPointsProvider(this);
+        partnerPointsToShow = partnerPointsProvider.getPartnerPoints(partnerToShow);
     }
 
-    private Partner restorePartnerToShow(Bundle savedInstanceState) {
-        return (Partner) savedInstanceState.getSerializable(Keys.partner);
+    private void restoreDataToShow(Bundle savedInstanceState) {
+        partnerToShow = (Partner) savedInstanceState.getSerializable(Keys.partnerToShow);
+        partnerPointsToShow = (List<PartnerPoint>) savedInstanceState.getSerializable(Keys.partnerPointsToShow);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable(Keys.partner, partnerToShow);
+        outState.putSerializable(Keys.partnerToShow, partnerToShow);
+        outState.putSerializable(Keys.partnerPointsToShow, (Serializable) partnerPointsToShow);
     }
 
     @SuppressLint("NewApi")
@@ -74,19 +76,18 @@ public class PartnerInfoActivity extends Activity {
 
     private void showPartnerInfo() {
         setTitle(partnerToShow.title);
-        setTextView(R.id.full_title, partnerToShow.fullTitle);
-        setTextView(R.id.sale_type, partnerToShow.saleType);
-        showPartnerPoints(partnerToShow.partnerPoints);
+        textViewById(R.id.full_title).setText(partnerToShow.fullTitle);
+        textViewById(R.id.sale_type).setText(partnerToShow.saleType);
+        showPartnerPoints();
     }
 
-    private void setTextView(int textViewId, String text) {
-        TextView textView = (TextView) findViewById(textViewId);
-        textView.setText(text);
+    private TextView textViewById(int textViewId) {
+        return (TextView) findViewById(textViewId);
     }
 
-    private void showPartnerPoints(List<PartnerPoint> partnerPoints) {
-        for (PartnerPoint eachPartnerPoint : partnerPoints) {
-            googleMap.addMarker(prepareMarkerOption(eachPartnerPoint));
+    private void showPartnerPoints() {
+        for (PartnerPoint each : partnerPointsToShow) {
+            googleMap.addMarker(prepareMarkerOptions(each));
         }
         runAfterCreatingMapView(new Runnable() {
             @Override
@@ -96,7 +97,7 @@ public class PartnerInfoActivity extends Activity {
         });
     }
 
-    private MarkerOptions prepareMarkerOption(PartnerPoint partnerPoint) {
+    private MarkerOptions prepareMarkerOptions(PartnerPoint partnerPoint) {
         return new MarkerOptions()
                 .title(partnerPoint.title)
                 .snippet(prepareSnippet(partnerPoint))
@@ -106,7 +107,7 @@ public class PartnerInfoActivity extends Activity {
     private String prepareSnippet(PartnerPoint partnerPoint) {
         String snippet = "";
         if (partnerPointHasAddress(partnerPoint)) {
-            snippet = partnerPoint.address + "  ";
+            snippet = (partnerPoint.address + "  ");
         }
         if (partnerPointHasPhoneNumber(partnerPoint)) {
             snippet += (getPhoneDescriptionText() + " " + partnerPoint.phone);
@@ -115,15 +116,15 @@ public class PartnerInfoActivity extends Activity {
     }
 
     private boolean partnerPointHasAddress(PartnerPoint partnerPoint) {
-        return notEmpty(partnerPoint.address);
+        return containsNonWhitespaceCharacters(partnerPoint.address);
     }
 
     private boolean partnerPointHasPhoneNumber(PartnerPoint partnerPoint) {
-        return notEmpty(partnerPoint.phone);
+        return containsNonWhitespaceCharacters(partnerPoint.phone);
     }
 
-    private boolean notEmpty(String str) {
-        return !str.trim().isEmpty();
+    private boolean containsNonWhitespaceCharacters(String text) {
+        return !text.trim().isEmpty();
     }
 
     private String getPhoneDescriptionText() {
@@ -161,7 +162,7 @@ public class PartnerInfoActivity extends Activity {
             return;
         }
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        for (PartnerPoint each : partnerToShow.partnerPoints) {
+        for (PartnerPoint each : partnerPointsToShow) {
             builder.include(new LatLng(each.latitude, each.longitude));
         }
         LatLngBounds bounds = builder.build();
@@ -170,7 +171,7 @@ public class PartnerInfoActivity extends Activity {
     }
 
     private boolean noPartnerPoints() {
-        return partnerToShow.partnerPoints.isEmpty();
+        return partnerPointsToShow.isEmpty();
     }
 
     private int getMapPadding() {
