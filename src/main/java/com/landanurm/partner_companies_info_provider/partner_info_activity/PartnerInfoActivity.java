@@ -19,7 +19,7 @@ import com.landanurm.partner_companies_info_provider.Keys;
 import com.landanurm.partner_companies_info_provider.R;
 import com.landanurm.partner_companies_info_provider.data_structure.Partner;
 import com.landanurm.partner_companies_info_provider.data_structure.PartnerPoint;
-import com.landanurm.partner_companies_info_provider.db_util.PartnerCategoriesInfoProvider;
+import com.landanurm.partner_companies_info_provider.db_util.PartnerCategoriesDataProvider;
 import com.landanurm.partner_companies_info_provider.partner_list_activity.PartnerListItem;
 
 import java.util.List;
@@ -28,14 +28,14 @@ public class PartnerInfoActivity extends Activity {
 
     private GoogleMap googleMap;
     private Partner partnerToShow;
-    private PartnerCategoriesInfoProvider partnerCategoriesInfoProvider;
+    private PartnerCategoriesDataProvider partnerCategoriesDataProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_partner_info);
 
-        partnerCategoriesInfoProvider = new PartnerCategoriesInfoProvider(this);
+        partnerCategoriesDataProvider = new PartnerCategoriesDataProvider(this);
 
         partnerToShow = getPartnerToShow(savedInstanceState);
         googleMap = getMap();
@@ -53,7 +53,7 @@ public class PartnerInfoActivity extends Activity {
     private Partner getPartnerToShow() {
         PartnerListItem partnerListItem = (PartnerListItem)
                 getIntent().getSerializableExtra(Keys.partnerListItemToShow);
-        return partnerCategoriesInfoProvider.getPartnerById(partnerListItem.id);
+        return partnerCategoriesDataProvider.getPartnerById(partnerListItem.id);
     }
 
     private Partner restorePartnerToShow(Bundle savedInstanceState) {

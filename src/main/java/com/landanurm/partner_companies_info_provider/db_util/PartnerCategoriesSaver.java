@@ -28,11 +28,9 @@ public class PartnerCategoriesSaver {
     public void saveToDatabase(List<PartnerCategory> partnerCategories) {
         PartnerCategoriesInfoProviderDbHelper dbHelper = new PartnerCategoriesInfoProviderDbHelper(context);
         db = dbHelper.getWritableDatabase();
-
         for (PartnerCategory each : partnerCategories) {
             saveToDatabase(each);
         }
-
         db.close();
         db = null;
         dbHelper.close();

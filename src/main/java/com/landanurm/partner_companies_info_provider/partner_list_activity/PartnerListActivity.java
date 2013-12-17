@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.AdapterView;
 
 import com.landanurm.partner_companies_info_provider.Keys;
-import com.landanurm.partner_companies_info_provider.db_util.PartnerCategoriesInfoProvider;
+import com.landanurm.partner_companies_info_provider.db_util.PartnerCategoriesDataProvider;
 import com.landanurm.partner_companies_info_provider.partner_info_activity.PartnerInfoActivity;
 
 import java.io.Serializable;
@@ -16,7 +16,7 @@ import java.util.List;
 public class PartnerListActivity extends ListActivity implements AdapterView.OnItemClickListener {
 
     private List<PartnerListItem> items;
-    private PartnerCategoriesInfoProvider partnerCategoriesInfoProvider;
+    private PartnerCategoriesDataProvider partnerCategoriesDataProvider;
     private PartnerListAdapter adapter;
     private String partnerCategoryTitle;
 
@@ -27,9 +27,9 @@ public class PartnerListActivity extends ListActivity implements AdapterView.OnI
         partnerCategoryTitle = getPartnerCategoryTitle(savedInstanceState);
         setTitle(partnerCategoryTitle);
 
-        partnerCategoriesInfoProvider = new PartnerCategoriesInfoProvider(this);
+        partnerCategoriesDataProvider = new PartnerCategoriesDataProvider(this);
 
-        items = partnerCategoriesInfoProvider.getPartnerListItems(partnerCategoryTitle);
+        items = partnerCategoriesDataProvider.getPartnerListItems(partnerCategoryTitle);
         adapter = new PartnerListAdapter(this, items);
         setListAdapter(adapter);
         getListView().setOnItemClickListener(this);

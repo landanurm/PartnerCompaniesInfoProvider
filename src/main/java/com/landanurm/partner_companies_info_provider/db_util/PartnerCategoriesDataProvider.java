@@ -17,12 +17,12 @@ import java.util.List;
 /**
  * Created by Leonid on 09.12.13.
  */
-public class PartnerCategoriesInfoProvider {
+public class PartnerCategoriesDataProvider {
     private final Context context;
     private PartnerCategoriesInfoProviderDbHelper dbHelper;
     private SQLiteDatabase db;
 
-    public PartnerCategoriesInfoProvider(Context context) {
+    public PartnerCategoriesDataProvider(Context context) {
         this.context = context;
     }
     

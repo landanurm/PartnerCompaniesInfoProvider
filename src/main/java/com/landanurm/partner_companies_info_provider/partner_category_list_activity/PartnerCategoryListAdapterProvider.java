@@ -4,7 +4,7 @@ import android.content.Context;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 
-import com.landanurm.partner_companies_info_provider.db_util.PartnerCategoriesInfoProvider;
+import com.landanurm.partner_companies_info_provider.db_util.PartnerCategoriesDataProvider;
 
 import java.io.Serializable;
 import java.util.List;
@@ -15,16 +15,16 @@ import java.util.List;
 public class PartnerCategoryListAdapterProvider {
     private final ArrayAdapter<String> adapter;
     private final List<String> categoryTitles;
-    private final PartnerCategoriesInfoProvider partnerCategoriesInfoProvider;
+    private final PartnerCategoriesDataProvider partnerCategoriesDataProvider;
 
     public PartnerCategoryListAdapterProvider(Context context) {
-        partnerCategoriesInfoProvider = new PartnerCategoriesInfoProvider(context);
-        categoryTitles = partnerCategoriesInfoProvider.getPartnerCategoryTitles();
+        partnerCategoriesDataProvider = new PartnerCategoriesDataProvider(context);
+        categoryTitles = partnerCategoriesDataProvider.getPartnerCategoryTitles();
         adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, categoryTitles);
     }
 
     public PartnerCategoryListAdapterProvider(Context context, Serializable savedState) {
-        partnerCategoriesInfoProvider = new PartnerCategoriesInfoProvider(context);
+        partnerCategoriesDataProvider = new PartnerCategoriesDataProvider(context);
         categoryTitles = (List<String>) savedState;
         adapter = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, categoryTitles);
     }
@@ -35,7 +35,7 @@ public class PartnerCategoryListAdapterProvider {
 
     public void updateListFromDatabase() {
         categoryTitles.clear();
-        categoryTitles.addAll(partnerCategoriesInfoProvider.getPartnerCategoryTitles());
+        categoryTitles.addAll(partnerCategoriesDataProvider.getPartnerCategoryTitles());
         adapter.notifyDataSetChanged();
     }
 
