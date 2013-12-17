@@ -33,7 +33,7 @@ public class PartnerCategoryListAdapterProvider {
         return adapter;
     }
 
-    public void updateDataFromDatabase() {
+    public void updateListFromDatabase() {
         categoryTitles.clear();
         categoryTitles.addAll(partnerCategoriesInfoProvider.getPartnerCategoryTitles());
         adapter.notifyDataSetChanged();

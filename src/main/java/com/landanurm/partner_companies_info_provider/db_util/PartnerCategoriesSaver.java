@@ -9,7 +9,6 @@ import com.landanurm.partner_companies_info_provider.data_structure.Partner;
 import com.landanurm.partner_companies_info_provider.data_structure.PartnerCategory;
 import com.landanurm.partner_companies_info_provider.db_util.PartnerCategoriesInfoProviderContracts.PartnerCategoriesContract;
 import com.landanurm.partner_companies_info_provider.db_util.PartnerCategoriesInfoProviderContracts.PartnersContract;
-import com.landanurm.partner_companies_info_provider.db_util.PartnerCategoriesInfoProviderDbHelper;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -68,7 +67,7 @@ public class PartnerCategoriesSaver {
         insertStatement.bindString(3, partner.fullTitle);
         insertStatement.bindString(4, partner.saleType);
         Serializable serializablePartnerPoints = (Serializable) partner.partnerPoints;
-        byte[] partnerPointsBlob = SerializableConvertor.convertToBytes(serializablePartnerPoints);
+        byte[] partnerPointsBlob = SerializableConvertor.serializableToBytes(serializablePartnerPoints);
         insertStatement.bindBlob(5, partnerPointsBlob);
         insertStatement.executeInsert();
     }
@@ -82,7 +81,7 @@ public class PartnerCategoriesSaver {
         SQLiteStatement insertStatement = db.compileStatement(sql);
         insertStatement.clearBindings();
         insertStatement.bindString(1, title);
-        byte[] partnerIdsBlob = SerializableConvertor.convertToBytes((Serializable) partnerIds);
+        byte[] partnerIdsBlob = SerializableConvertor.serializableToBytes((Serializable) partnerIds);
         insertStatement.bindBlob(2, partnerIdsBlob);
         insertStatement.executeInsert();
     }

@@ -14,7 +14,7 @@ import java.io.Serializable;
  */
 public class SerializableConvertor {
 
-    public static byte[] convertToBytes(Serializable serializable) {
+    public static byte[] serializableToBytes(Serializable serializable) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutput out = null;
         byte[] bytes = null;
@@ -36,7 +36,7 @@ public class SerializableConvertor {
         return bytes;
     }
 
-    public static Object readFromBytes(byte[] bytes) {
+    public static Object serializableFromBytes(byte[] bytes) {
         ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
         ObjectInput in = null;
         Object obj = null;

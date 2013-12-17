@@ -33,29 +33,31 @@ public class PartnerCategoriesInfoProvider {
 
     private void releaseDatabase() {
         db.close();
-        dbHelper.close();
         db = null;
+        dbHelper.close();
         dbHelper = null;
     }
 
     public List<String> getPartnerCategoryTitles() {
         initDatabase();
-        String[] columns = {
-                PartnerCategoriesContract.COLUMN_NAME_TITLE
-        };
-        String sql = "SELECT " + PartnerCategoriesContract.COLUMN_NAME_TITLE +
-                     " FROM " + PartnerCategoriesContract.TABLE_NAME + ";";
-        Cursor cursor = db.rawQuery(sql, new String[] {});
-        List<String> partnerCategoryTitles = getPartnerCategoryTitles(cursor);
-        cursor.close();
+        List<String> partnerCategoryTitles = getPartnerCategoryTitlesFromDatabase();
         releaseDatabase();
         return partnerCategoryTitles;
     }
 
-    private List<String> getPartnerCategoryTitles(Cursor cursor) {
+    private List<String> getPartnerCategoryTitlesFromDatabase() {
+        String sql = "SELECT " + PartnerCategoriesContract.COLUMN_NAME_TITLE +
+                     " FROM " + PartnerCategoriesContract.TABLE_NAME + ";";
+        Cursor cursor = db.rawQuery(sql, new String[] {});
+        List<String> partnerCategoryTitles = getPartnerCategoryTitlesFromCursor(cursor);
+        cursor.close();
+        return partnerCategoryTitles;
+    }
+
+    private List<String> getPartnerCategoryTitlesFromCursor(Cursor cursor) {
         List<String> titles = new ArrayList<String>();
-        cursor.moveToFirst();
         int titleColumnIndex = cursor.getColumnIndexOrThrow(PartnerCategoriesContract.COLUMN_NAME_TITLE);
+        cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             String title = cursor.getString(titleColumnIndex);
             titles.add(title);
@@ -66,65 +68,49 @@ public class PartnerCategoriesInfoProvider {
 
     public List<PartnerListItem> getPartnerListItems(String partnerCategoryTitle) {
         initDatabase();
-
-        List<Integer> partnerIds = getPartnerIds(partnerCategoryTitle);
-        List<PartnerListItem> partnerListItems = getPartnerListItems(partnerIds);
-
+        List<PartnerListItem> partnerListItems = getPartnerListItemsFromDatabase(partnerCategoryTitle);
         releaseDatabase();
-
         return partnerListItems;
     }
 
-    private List<Integer> getPartnerIds(String partnerCategoryTitle) {
+    private List<PartnerListItem> getPartnerListItemsFromDatabase(String partnerCategoryTitle) {
+        List<Integer> partnerIds = getPartnerIdsFromDatabase(partnerCategoryTitle);
+        return getPartnerListItems(partnerIds);
+    }
+
+    private List<Integer> getPartnerIdsFromDatabase(String partnerCategoryTitle) {
         String sql = "SELECT " +
                           PartnerCategoriesContract.COLUMN_NAME_PARTNER_IDS +
                      " FROM " + PartnerCategoriesContract.TABLE_NAME +
                      " WHERE " + PartnerCategoriesContract.COLUMN_NAME_TITLE + " = ? ;";
 
         Cursor cursor = db.rawQuery(sql, new String[]{partnerCategoryTitle});
-
-        List<Integer> partnerIds = null;
-
-        if (cursor.moveToFirst()) {
-            partnerIds = getPartnerIds(cursor);
-        }
-        if ((cursor != null) && !cursor.isClosed()) {
-            cursor.close();
-        }
+        List<Integer> partnerIds = getPartnerIdsFromCursor(cursor);
+        cursor.close();
         return partnerIds;
     }
 
     @SuppressWarnings("unchecked")
-    private List<Integer> getPartnerIds(Cursor cursor) {
+    private List<Integer> getPartnerIdsFromCursor(Cursor cursor) {
         int indexOfPartnerIdsColumn = cursor.getColumnIndexOrThrow(PartnerCategoriesContract.COLUMN_NAME_PARTNER_IDS);
+        cursor.moveToFirst();
         byte[] partnerIdsBlob = cursor.getBlob(indexOfPartnerIdsColumn);
-        return (List<Integer>) SerializableConvertor.readFromBytes(partnerIdsBlob);
+        return (List<Integer>) SerializableConvertor.serializableFromBytes(partnerIdsBlob);
     }
 
     private List<PartnerListItem> getPartnerListItems(List<Integer> partnerIds) {
-        List<PartnerListItem> items = new ArrayList<PartnerListItem>();
-        Cursor cursor = prepareCursor(partnerIds);
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            items.add(getPartnerListItem(cursor));
-            cursor.moveToNext();
-        }
-        if (cursor != null && !cursor.isClosed()) {
-            cursor.close();
-        }
-        return items;
-    }
-
-    private Cursor prepareCursor(List<Integer> partnerIds) {
         String sql = "SELECT " +
                 PartnersContract.COLUMN_NAME_PARTNER_ID + ", " +
                 PartnersContract.COLUMN_NAME_TITLE +
-               " FROM " + PartnersContract.TABLE_NAME + " " +
+                " FROM " + PartnersContract.TABLE_NAME + " " +
                 prepareWhereCondition(partnerIds.size()) + ";";
 
         String[] selectionArgs = partnerIdsToStringArray(partnerIds);
 
-        return db.rawQuery(sql, selectionArgs);
+        Cursor cursor = db.rawQuery(sql, selectionArgs);
+        List<PartnerListItem> items = getPartnerListItemsFromCursor(cursor);
+        cursor.close();
+        return items;
     }
 
     private String prepareWhereCondition(int numberOfIds) {
@@ -151,47 +137,61 @@ public class PartnerCategoriesInfoProvider {
         return result;
     }
 
-    private PartnerListItem getPartnerListItem(Cursor cursor) {
-        int idColumnIndex = cursor.getColumnIndexOrThrow(PartnersContract.COLUMN_NAME_PARTNER_ID);
-        int titleColumnIndex = cursor.getColumnIndexOrThrow(PartnersContract.COLUMN_NAME_TITLE);
-        int id = cursor.getInt(idColumnIndex);
-        String title = cursor.getString(titleColumnIndex);
+    private List<PartnerListItem> getPartnerListItemsFromCursor(Cursor cursor) {
+        List<PartnerListItem> items = new ArrayList<PartnerListItem>();
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            PartnerListItem item = getPartnerListItemFromCursor(cursor);
+            items.add(item);
+            cursor.moveToNext();
+        }
+        return items;
+    }
+
+    private PartnerListItem getPartnerListItemFromCursor(Cursor cursor) {
+        int id = cursor.getInt(
+                cursor.getColumnIndexOrThrow(PartnersContract.COLUMN_NAME_PARTNER_ID)
+        );
+        String title = cursor.getString(
+                cursor.getColumnIndexOrThrow(PartnersContract.COLUMN_NAME_TITLE)
+        );
         return new PartnerListItem(id, title);
     }
 
     public Partner getPartnerById(int partnerId) {
-
         initDatabase();
-
-        String sql = "SELECT * FROM " + PartnersContract.TABLE_NAME +
-                     " WHERE " + PartnersContract.COLUMN_NAME_PARTNER_ID + " = ? ;";
-        String[] selectionArgs = new String[] { String.valueOf(partnerId) };
-
-        Cursor cursor = db.rawQuery(sql, selectionArgs);
-        cursor.moveToFirst();
-        Partner partner = getPartner(cursor);
-        cursor.close();
-
+        Partner partner = getPartnerByIdFromDatabase(partnerId);
         releaseDatabase();
+        return partner;
+    }
 
+    private Partner getPartnerByIdFromDatabase(int partnerId) {
+        String sql = "SELECT * FROM " + PartnersContract.TABLE_NAME +
+                " WHERE " + PartnersContract.COLUMN_NAME_PARTNER_ID + " = ? ;";
+        String[] selectionArgs = new String[] { String.valueOf(partnerId) };
+        Cursor cursor = db.rawQuery(sql, selectionArgs);
+        Partner partner = getPartnerFromCursor(cursor);
+        cursor.close();
         return partner;
     }
 
     @SuppressWarnings("unchecked")
-    private Partner getPartner(Cursor cursor) {
+    private Partner getPartnerFromCursor(Cursor cursor) {
         int idColumnIndex = cursor.getColumnIndexOrThrow(PartnersContract.COLUMN_NAME_PARTNER_ID);
         int titleColumnIndex = cursor.getColumnIndexOrThrow(PartnersContract.COLUMN_NAME_TITLE);
         int fullTitleColumnIndex = cursor.getColumnIndexOrThrow(PartnersContract.COLUMN_NAME_FULL_TITLE);
         int saleTypeColumnIndex = cursor.getColumnIndexOrThrow(PartnersContract.COLUMN_NAME_SALE_TYPE);
         int partnerPointsColumnIndex = cursor.getColumnIndexOrThrow(PartnersContract.COLUMN_NAME_PARTNER_POINTS);
 
+        cursor.moveToFirst();
         int id = cursor.getInt(idColumnIndex);
         String title = cursor.getString(titleColumnIndex);
         String fullTitle = cursor.getString(fullTitleColumnIndex);
         String saleType = cursor.getString(saleTypeColumnIndex);
         byte[] partnerPointsBlob = cursor.getBlob(partnerPointsColumnIndex);
         List<PartnerPoint> partnerPoints = (List<PartnerPoint>)
-                SerializableConvertor.readFromBytes(partnerPointsBlob);
+                SerializableConvertor.serializableFromBytes(partnerPointsBlob);
+
         return new Partner(id, title, fullTitle, saleType, partnerPoints);
     }
 }

@@ -30,7 +30,7 @@ public class PartnerCategoryListActivity extends ListActivity
 
         updatedData = updatedData(savedInstanceState);
         if (!updatedData) {
-            updateData();
+            startUpdate();
         }
     }
 
@@ -44,13 +44,14 @@ public class PartnerCategoryListActivity extends ListActivity
     }
 
     private boolean updatedData(Bundle savedInstanceState) {
-        return (savedInstanceState != null) &&
-               (savedInstanceState.getBoolean(Keys.updatedData) == true);
+        if (savedInstanceState == null) {
+            return false;
+        }
+        return savedInstanceState.getBoolean(Keys.updatedData);
     }
 
-    private void updateData() {
+    private void startUpdate() {
         progressDialog = ProgressDialogProvider.prepareProgressDialog(this);
-
         final PartnerCategoriesUpdatingTask task = new PartnerCategoriesUpdatingTask(this, this);
         progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
@@ -77,7 +78,7 @@ public class PartnerCategoryListActivity extends ListActivity
     @Override
     public void onPostDataUpdating() {
         updatedData = true;
-        adapterProvider.updateDataFromDatabase();
+        adapterProvider.updateListFromDatabase();
         progressDialog.dismiss();
     }
 
